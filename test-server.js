@@ -23,14 +23,14 @@ app.post("/create-razorpay-order", async (req, res) => {
   try {
     console.log("BODY:", req.body);
 
-    const amount = Number(req.body.amount);
+    const amount = Math.round(Number(req.body.amount) * 100);
 
     if(!amount){
       return res.status(400).send("Invalid amount");
     }
 
     const options = {
-      amount: Math.round(amount * 100),
+      amount: amount,
       currency: "INR",
       receipt: "order_" + Date.now()
     };
