@@ -1,12 +1,43 @@
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
+const Razorpay = require("razorpay");
+
+
 
 const app = express();
 
 // ✅ MIDDLEWARE
 app.use(express.json());
 app.use(cors());
+
+
+// razorpay 
+const razorpay = new Razorpay({
+  key_id: "rzp_live_SfL1c813qJNduP",
+  key_secret: "261xmmqiDYpbgxgQUIm84xhj"
+});
+
+// razorpay integration 
+app.post("/create-razorpay-order", async (req, res) => {
+  try {
+    const { amount } = req.body;
+
+    const options = {
+      amount: amount * 100, // ₹ → paise
+      currency: "INR",
+      receipt: "order_" + Date.now()
+    };
+
+    const order = await razorpay.orders.create(options);
+
+    res.json(order);
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Error creating Razorpay order");
+  }
+});
 
 // 🔥 DEBUG (हर request print होगी)
 app.use((req, res, next) => {
@@ -120,8 +151,8 @@ app.post("/create-order", async (req, res) => {
 });
 
 // 🚀 SERVER START
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`🔥 Server running on http://localhost:${PORT}`);
+  console.log(`🔥 Server running on port ${PORT}`);
 });
