@@ -21,10 +21,16 @@ const razorpay = new Razorpay({
 // razorpay integration 
 app.post("/create-razorpay-order", async (req, res) => {
   try {
-    const { amount } = req.body;
+    console.log("BODY:", req.body);
+
+    const amount = Number(req.body.amount);
+
+    if(!amount){
+      return res.status(400).send("Invalid amount");
+    }
 
     const options = {
-      amount: amount * 100, // ₹ → paise
+      amount: Math.round(amount * 100),
       currency: "INR",
       receipt: "order_" + Date.now()
     };
@@ -34,8 +40,8 @@ app.post("/create-razorpay-order", async (req, res) => {
     res.json(order);
 
   } catch (err) {
-    console.log(err);
-    res.status(500).send("Error creating Razorpay order");
+    console.log("❌ RAZORPAY ERROR:", err);
+    res.status(500).send(err.message);
   }
 });
 
